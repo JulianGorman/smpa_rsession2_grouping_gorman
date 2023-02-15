@@ -113,7 +113,8 @@ So let's do that simply by using the `=` (single this time, note) to assign a na
 
 srqflights %>% 
   group_by(carrier, flight, origin) %>% 
-  summarise(count = n())
+  summarise(count = n()) %>%
+  arrange(desc(count))
 
 ```
 
@@ -159,9 +160,10 @@ So we can easily handle that by adding an argument to calculate the average rega
 ```{r}
 
 srqflights %>% 
-  filter(month == 1) %>% 
-  group_by(carrier, flight, origin) %>% 
-  summarise(avg_delay = mean(dep_delay, na.rm = TRUE))
+  group_by(month, carrier, flight, origin) %>% 
+  summarise(avg_delay = mean(dep_delay, na.rm = TRUE),
+            median_delay = median(dep_delay, na.rm = TRUE),
+            flight_count = n())
 
 ```
 
@@ -214,6 +216,18 @@ We now have a lot more information at our fingertips than we did a few minutes a
 
 ```{r}
 
+flights <- nycflights13::flights
+
+
+```
+
+
+```{r}
+flights %>%
+  group_by(dest) %>% 
+  summarise(avg_delay = mean(arr_delay, na.rm = TRUE)) %>% 
+  arrange(desc(avg_delay))
+  
 
 
 ```
@@ -221,21 +235,26 @@ We now have a lot more information at our fingertips than we did a few minutes a
 
 ```{r}
 
-
-
-```
-
-
-```{r}
-
-
+flights %>%
+  filter(dest == "CAE") %>% 
+  group_by(carrier) %>% 
+  summarise(avg_delay = mean(arr_delay, na.rm = TRUE)) %>% 
+  arrange(desc(avg_delay))
 
 ```
 
 
 ```{r}
 
-
+ggplot(CAE_Flight_delays, aes(x = carrier, y = avg_delay)) +
+  geom_col() +
+  coord_flip() + 
+  geom_col(color = "#FF8633", fill = "#FF8633")+
+  scale_y_continuous(name = "Average time of arrival delay", labels = scales::comma)+
+  scale_x_discrete(name = "Carrier") +
+    labs(title = "Average delay by carrier at Columbia, SC airport", 
+       subtitle = "2013") +
+  theme_fivethirtyeight()
 
 ```
 
